@@ -1,0 +1,14 @@
+{
+  "dependencies": {
+    "@openzeppelin/contracts": "^4.8.2",
+    "circom_tester": "^0.0.19",
+    "circomlib": "^2.0.5",
+    "hardhat": "^2.12.7",
+    "hardhat-circom": "^3.3.2",
+    "hardhat-gas-reporter": "^1.0.9",
+    "snarkjs": "^0.6.7"
+  },
+  "devDependencies": {
+    "@nomicfoundation/hardhat-toolbox": "^2.0.1"
+  }
+}
