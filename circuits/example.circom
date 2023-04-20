@@ -2,28 +2,24 @@ pragma circom 2.0.3;
 
 include "../node_modules/circomlib/circuits/poseidon.circom";
 
+// Problems:
+// 1 - Other users can copy
+// 2 - User can only use their password once
+// 3 - Contract admin cant update password without redploying a new ZK snark
 template NftMint() {
-    // The public inputs
-    signal output nullifier;
-    signal input hash;
-    signal input address;
 
-    // The private inputs
-    signal input preimage;
+    signal input password; // Private
+    signal output success; // Public Return Value
 
-    // Hash the preimage and check if the result matches the hash.
+    // The hash of 1234
+    signal hash <== 11073944447358252977412171491011187728107721062193052377268397448625136347320;
+
+    // Hash the password and check if the result matches the hash.
     component hasher = Poseidon(1);
-    hasher.inputs[0] <== preimage;
-
+    hasher.inputs[0] <== password;
     hasher.out === hash;
-
-    // The contract should keep track of seen nullifiers so as to prevent
-    // double-spends.
-    component nullifierHasher = Poseidon(2);
-    nullifierHasher.inputs[0] <== address;
-    nullifierHasher.inputs[1] <== preimage;
-
-    nullifier <== nullifierHasher.out;
+    
+    success <== 1;
 }
 
-component main {public [hash, address]} = NftMint();
+component main = NftMint();

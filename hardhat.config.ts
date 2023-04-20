@@ -36,7 +36,7 @@ const config: HardhatUserConfig = {
     circuits: [{ name: "example" }, { name: "hasher" }],
   },
   gasReporter: {
-    enabled: true
+    enabled: false
   }
 };
 
