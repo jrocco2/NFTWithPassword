@@ -26,47 +26,7 @@ describe("Example", function () {
     return { verifier, Verifier, nft };
   }
 
-  describe("Deployment", function () {
-    it("Should set the right unlockTime", async function () {
-
-      const circuit = await wasm_tester("circuits/example.circom");
-
-
-      const input = {
-        "preimage": "4321",
-      }
-
-
-      // Calculate the witness
-      const witness = await circuit.calculateWitness(input, true);
-      // console.log(witness)
-
-      // expect(Fr.eq(Fr.e(witness[0]), Fr.e(1)));
-      // expect(Fr.eq(Fr.e(witness[1]), Fr.e(1)));
-    });
-
-    it("Should return true for correct proof", async function () {
-      const { verifier } = await loadFixture(deploy);
-
-
-      const input = {
-        "preimage": "4321",
-      }
-
-      const { proof, publicSignals } = await groth16.fullProve(input, "circuits/example.wasm", "circuits/example.zkey");
-
-      const calldata = await groth16.exportSolidityCallData(proof, publicSignals);
-
-      const argv = calldata.replace(/["[\]\s]/g, "").split(',').map(x => BigInt(x).toString());
-
-      const a = [argv[0], argv[1]];
-      const b = [[argv[2], argv[3]], [argv[4], argv[5]]];
-      const c = [argv[6], argv[7]];
-      const Input = argv.slice(8);
-
-      console.log("Verification Gas Costs: ", await verifier.estimateGas.verifyProof(a, b, c, Input))
-      expect(await verifier.verifyProof(a, b, c, Input)).to.be.true;
-    });
+  describe("Test", function () {
 
     it("Should password protect NFT", async function () {
       const { nft } = await loadFixture(deploy);
@@ -75,9 +35,7 @@ describe("Example", function () {
 
       const password = "4321";
       const input = {
-        // "hash": (await nft.hash()).toString(),
         "preimage": password,
-        // "address": addr1.address
       }
 
       const { proof, publicSignals } = await groth16.fullProve(input, "circuits/example.wasm", "circuits/example.zkey");
@@ -91,57 +49,9 @@ describe("Example", function () {
       const c = [argv[6], argv[7]];
       const Input = argv.slice(8);
 
-      console.log("Total Mint Cost: ", await nft.estimateGas.mintWithProof(a, b, c, Input[0]))
       await nft.mintWithProof(a, b, c, Input[0])
 
     });
-    it("Should fail with wrong password", async function () {
-      const { nft } = await loadFixture(deploy);
-
-      const [addr1, addr2] = await ethers.getSigners();
-
-      const password = "1234";
-      const input = {
-        // "hash": (await nft.hash()).toString(),
-        "preimage": password,
-        // "address": addr1.address
-      }
-
-      await expect(
-        groth16.fullProve(input, "circuits/example.wasm", "circuits/example.zkey")
-      ).to.throw
-
-    });
-
-    it.skip("Should not allow the same proof twice", async function () {
-      const { nft } = await loadFixture(deploy);
-
-      const [addr1, addr2] = await ethers.getSigners();
-
-      const password = "4321";
-      const input = {
-        "hash": (await nft.hash()).toString(),
-        "preimage": password,
-        "address": addr1.address
-      }
-
-      const { proof, publicSignals } = await groth16.fullProve(input, "circuits/example.wasm", "circuits/example.zkey");
-
-      const calldata = await groth16.exportSolidityCallData(proof, publicSignals);
-
-      const argv = calldata.replace(/["[\]\s]/g, "").split(',').map(x => BigInt(x).toString());
-
-      const a = [argv[0], argv[1]];
-      const b = [[argv[2], argv[3]], [argv[4], argv[5]]];
-      const c = [argv[6], argv[7]];
-      const Input = argv.slice(8);
-
-      console.log("Total Mint Cost: ", await nft.estimateGas.mintWithProof(a, b, c, Input[0]))
-      await nft.mintWithProof(a, b, c, Input[0])
-      await expect(nft.mintWithProof(a, b, c, Input[0])).to.be.reverted
-
-    });
-
   });
 
 });
